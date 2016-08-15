@@ -1,0 +1,7 @@
+.env
+config.yml
+__pycache__
+cover
+.coverage
+build
+dist
