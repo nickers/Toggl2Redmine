@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['toggltoredmine\\synchronizer.py'],
-             pathex=['d:\\projects\\Toggl2Redmine'],
+             pathex=['.'],
              binaries=None,
              datas=[ ('config.yml.example', '.'), ],
              hiddenimports=['redmine.resources'],
