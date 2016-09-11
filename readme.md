@@ -1,9 +1,9 @@
 Toggl2Redmine
 ===
 
-`Toggl2Redmine` is an app for one way synchronizing **[toggl](toggl.com)** entries to **[redmine](https://www.redmine.org/)** time entries associated with issues. All toggl entries decorated with issue id (see example) will be treated as entries to send to redmine time entries.
+`Toggl2Redmine` is an app for one way synchronizing **[toggl](toggl.com)** entries to **[redmine](https://www.redmine.org/)** time entries associated with **issues**. All toggl entries decorated with issue id (see example) will be treated as entries to send to redmine time entries.
 
-Optionally after synchronization this app sends a notification to mattermost.
+Optionally after synchronization this app sends a notification to *mattermost*.
 
 Example
 ---
@@ -20,13 +20,26 @@ Requirements
 * Redmine account and api key
 * [Optional] Mattermost incoming webhook url
 
-Simulation mode
+How to run
 ---
 
-If you want only simulate `synchronizer` and see what would happen, run it with `-s` parameter.
+If you don't have *python 3* installed, go to **Releases** and download executable. It is the simplest way to run `toggl2redmine`.
+
+If you have *python 3* installed you should prepare once a new virtual environment and download requirements (see Howto). Then always when you want to run *synchronizer* you should firstly activate environment:
+
+```
+.env\Scripts\activate.bat
+python -m toggltoredmine.synchronizer
+```
 
 Usage
 ---
+
+Get help:
+
+```
+synchronizer -h
+```
 
 Run synchronizer for last day:
 
@@ -44,8 +57,6 @@ Howto
 ---
 
 **Prepare development environemnt**
-
-Requires: **python 3.5**
 
 ```
 python -m venv .env
