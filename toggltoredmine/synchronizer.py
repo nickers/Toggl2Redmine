@@ -1,11 +1,13 @@
 import argparse
 import traceback
+import sys
 
 from toggltoredmine.version import VERSION
 from toggltoredmine.config import Config
 from toggltoredmine.toggl import TogglHelper
 from toggltoredmine.redmine import RedmineHelper
-from toggltoredmine.mattermost import MattermostNotifier
+from toggltoredmine.mattermost import MattermostNotifier, RequestsRunner
+from toggltoredmine import version
 
 class Synchronizer:
     def __init__(self, config, redmine, toggl, mattermost):
@@ -29,7 +31,7 @@ class Synchronizer:
         print('Found entries in toggl: {} (with redmine id: {})'.format(len(entries), len(filteredEntries)))
 
         if self.mattermost:
-            self.mattermost.append('Found entries in toggl: **{}** (with redmine id: **{}**)'.format(len(entries), len(filteredEntries)))
+            self.mattermost.appendEntries(entries)
 
         if len(filteredEntries) == 0:
             print('No entries with redmine id found. Nothing to do')
@@ -152,14 +154,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Syncs toggle entries to redmine. Version v{}'.format(VERSION))
 
     parser.add_argument('-s', '--simulation', help='No entries will be saved, only simulation', action='store_true')
-    parser.add_argument('-d', '--days', help='Days to sync', type=int, required=True)
+    parser.add_argument('-d', '--days', help='Days to sync', type=int, default=0)
+    parser.add_argument('-v', '--version', help='Prints version', action='store_true')
 
     args = parser.parse_args()
+
+    print('Synchronizer v{}\n============================'.format(version.VERSION))
+
+    if args.version:
+        sys.exit(0)
 
     config = Config.fromFile()
 
     print('Found api key pairs: {}'.format(len(config.entries)))
-    mattermost = MattermostNotifier(config.mattermost, args.simulation) if config.mattermost != None else None
+    mattermost = MattermostNotifier(config.mattermost, RequestsRunner(), args.simulation) if config.mattermost != None else None
 
     for apiKeys in config.entries:
         toggl = TogglHelper(config.toggl, apiKeys.toggl)
