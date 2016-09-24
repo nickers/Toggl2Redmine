@@ -4,10 +4,15 @@ from argparse import ArgumentParser
 
 from toggltoredmine.config import Config
 
+class RequestsRunner:
+    def send(url, data):
+        requests.post(url, data=json.dumps(data))
+
 class MattermostNotifier:
-    def __init__(self, url, simulation=False):
+    def __init__(self, url, runner, simulation=False):
         self.url = url
         self.lines = []
+        self.runner = runner
         self.simulation = simulation
 
     def append(self, message):
@@ -23,7 +28,7 @@ class MattermostNotifier:
             print(text)
             print('-----------------------------------')
         else:
-            requests.post(self.url, data=json.dumps(data))
+            self.runner.send(self.url, data)
 
         self.lines = []
 
@@ -40,7 +45,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    notifier = MattermostNotifier(config.mattermost, args.simulation)
+    notifier = MattermostNotifier(config.mattermost, RequestsRunner(), args.simulation)
     notifier.append(args.message)
     notifier.send()
 

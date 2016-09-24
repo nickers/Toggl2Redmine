@@ -6,7 +6,7 @@ from toggltoredmine.version import VERSION
 from toggltoredmine.config import Config
 from toggltoredmine.toggl import TogglHelper
 from toggltoredmine.redmine import RedmineHelper
-from toggltoredmine.mattermost import MattermostNotifier
+from toggltoredmine.mattermost import MattermostNotifier, RequestsRunner
 from toggltoredmine import version
 
 class Synchronizer:
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     config = Config.fromFile()
 
     print('Found api key pairs: {}'.format(len(config.entries)))
-    mattermost = MattermostNotifier(config.mattermost, args.simulation) if config.mattermost != None else None
+    mattermost = MattermostNotifier(config.mattermost, RequestsRunner(), args.simulation) if config.mattermost != None else None
 
     for apiKeys in config.entries:
         toggl = TogglHelper(config.toggl, apiKeys.toggl)
