@@ -31,7 +31,7 @@ class Synchronizer:
         print('Found entries in toggl: {} (with redmine id: {})'.format(len(entries), len(filteredEntries)))
 
         if self.mattermost:
-            self.mattermost.append('Found entries in toggl: **{}** (with redmine id: **{}**)'.format(len(entries), len(filteredEntries)))
+            self.mattermost.appendEntries(entries)
 
         if len(filteredEntries) == 0:
             print('No entries with redmine id found. Nothing to do')
