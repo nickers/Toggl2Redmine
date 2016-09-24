@@ -1,11 +1,13 @@
 import argparse
 import traceback
+import sys
 
 from toggltoredmine.version import VERSION
 from toggltoredmine.config import Config
 from toggltoredmine.toggl import TogglHelper
 from toggltoredmine.redmine import RedmineHelper
 from toggltoredmine.mattermost import MattermostNotifier
+from toggltoredmine import version
 
 class Synchronizer:
     def __init__(self, config, redmine, toggl, mattermost):
@@ -152,9 +154,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Syncs toggle entries to redmine. Version v{}'.format(VERSION))
 
     parser.add_argument('-s', '--simulation', help='No entries will be saved, only simulation', action='store_true')
-    parser.add_argument('-d', '--days', help='Days to sync', type=int, required=True)
+    parser.add_argument('-d', '--days', help='Days to sync', type=int, default=0)
+    parser.add_argument('-v', '--version', help='Prints version', action='store_true')
 
     args = parser.parse_args()
+
+    print('Synchronizer v{}\n============================'.format(version.VERSION))
+
+    if args.version:
+        sys.exit(0)
 
     config = Config.fromFile()
 
