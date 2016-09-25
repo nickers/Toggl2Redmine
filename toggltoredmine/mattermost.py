@@ -20,9 +20,9 @@ class MattermostNotifier:
         self.lines.append(message)
 
     def appendEntries(self, allEntries):
-        filteredEntries = [e for e in allEntries if e.taskId != None]
+        filteredAllEntries = [e for e in allEntries if e.taskId != None]
 
-        self.append('Found entries in toggl: **{}** (with redmine id: **{}**)'.format(len(allEntries), len(filteredEntries)))
+        self.append('Found entries in toggl: **{}** (with redmine id: **{}**)'.format(len(allEntries), len(filteredAllEntries)))
 
         entries = MattermostNotifier.filterToday(allEntries)
 
@@ -30,20 +30,33 @@ class MattermostNotifier:
 
         if len(entries) == 0 or timeSum == 0:
             self.append('All together you did not work today at all :cry:. Hope you ok?')
-        elif timeSum < 4 * 60 * 60: # 4 hours
-            self.append('You worked almost less than 4 hours today (exactly {}), not every day is a perfect day, right? :smirk:.'.format(MattermostNotifier.formatSeconds(timeSum)))
-        elif timeSum < 8 * 60 * 60: # 8 hours
-            self.append('Hard day working today, yeah? You did good :clap:: {}.'.format(MattermostNotifier.formatSeconds(timeSum)))
         else:
-            self.append('Wow you did overtime today :rocket:! Doing overtime from time to time can be good, but life after work is also important. Remember this next time taking {} in work :sunglasses:!'.format(MattermostNotifier.formatSeconds(timeSum)))
+            if timeSum < 4 * 60 * 60: # 4 hours
+                self.append('You worked almost less than 4 hours today (exactly {}), not every day is a perfect day, right? :smirk:.'.format(MattermostNotifier.formatSeconds(timeSum)))
+            elif timeSum < 8 * 60 * 60: # 8 hours
+                self.append('Hard day working today, yeah? You did good :clap:: {}.'.format(MattermostNotifier.formatSeconds(timeSum)))
+            else:
+                self.append('Wow you did overtime today :rocket:! Doing overtime from time to time can be good, but life after work is also important. Remember this next time taking {} in work :sunglasses:!'.format(MattermostNotifier.formatSeconds(timeSum)))
 
-        if len(entries) > 0:
             if len(entries) < 5:
                 self.append('Huh, not many entries. It means, you did only a couple of tasks, but did it right .. right? :open_mouth:')
             elif len(entries) < 20:
                 self.append('Average day. Not too few, not too many entries :sunglasses:.')
             else:
                 self.append('You did {} entries like a boss :smirk: :boom:!'.format(len(entries)))
+
+            redmineTodayEntries = MattermostNotifier.filterWithRedmineId(entries)
+
+            factor = len(redmineTodayEntries) / len(entries)
+
+            if factor < .25:
+                self.append('Ugh. Less than 25% of your work had redmine id. Not so good :cry:.'.format())
+            elif factor < .50:
+                self.append('Almost 50% of your today work had redmine id :blush:.'.format())
+            elif factor < .75:
+                self.append("It's gooood. A lot of today work had redmine id! Congrats :sunglasses:.")
+            else:
+                self.append('It seems that more than 75% of your today work had redmine id! So .. you rock :rocket:!')
 
         self.append('')
 
@@ -78,6 +91,11 @@ class MattermostNotifier:
 
         today = datetime.strftime(datetime.today(), '%Y-%m-%d')
         return [e for e in entries if e.start and e.start.startswith(today)]
+
+    @staticmethod
+    def filterWithRedmineId(entries):
+        """Filters given entries according to taskId"""
+        return [e for e in entries if e.taskId != None]
 
 
 if __name__ == '__main__':
