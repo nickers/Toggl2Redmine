@@ -25,10 +25,12 @@ How to run
 
 If you don't have *python 3* installed, go to **Releases** and download executable. It is the simplest way to run `toggl2redmine`.
 
-If you have *python 3* installed you should prepare once a new virtual environment and download requirements (see Howto). Then always when you want to run *synchronizer* you should firstly activate environment:
+If you have *python 3* installed you should prepare once a new virtual environment and download `pybuilder` (see Howto). Then always when you want to run *synchronizer* you should firstly activate environment and install dependencies:
 
 ```
 .env\Scripts\activate.bat
+pip install pybuilder
+pyb install_dependencies
 python -m toggltoredmine.synchronizer
 ```
 
@@ -61,7 +63,8 @@ Howto
 ```
 python -m venv .env
 .env\Scripts\activate.bat (or .sh)
-pip install -r requirements.txt
+pip install pybuilder
+pyb install_dependencies
 ```
 
 **Run tests**
@@ -73,11 +76,11 @@ nosetests -v
 **Run tests with coverage**
 
 ```
-nosetests --with-coverage --cover-html
+pyb tests
 ```
 
 **Prepare executable**
 
 ```
-pyinstaller synchronizer.spec
+pyb build_exe
 ```
