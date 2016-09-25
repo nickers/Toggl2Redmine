@@ -174,7 +174,7 @@ if __name__ == '__main__':
         redmine = RedmineHelper(config.redmine, apiKeys.redmine, args.simulation)
 
         if mattermost != None:
-            mattermost.append('Toggl2Redmine for {}'.format(apiKeys.label))
+            mattermost.append('Toggl2Redmine v{} for {}'.format(version.VERSION, apiKeys.label))
             mattermost.append('---')
             mattermost.append('')
 
