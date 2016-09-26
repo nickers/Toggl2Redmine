@@ -71,6 +71,8 @@ class MattermostNotifier:
             print('-----------------------------------')
         else:
             self.runner.send(self.url, data)
+            print('Sent to mattermost:')
+            print(text)
 
         self.lines = []
 
