@@ -54,6 +54,9 @@ class TogglEntry:
 	def __str__(self):
 		return '{}. {}: {} (time: {} h, redmine task: {})'.format(self.id, self.start, self.description, self.hours, '#' + str(self.taskId) if self.taskId else '-')
 
+	def __repr__(self):
+		return str(self)
+
 class TogglHelper:
 	"""
 	Class providing access to toggl time entries
