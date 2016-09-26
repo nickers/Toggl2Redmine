@@ -1,1 +1,1 @@
-pybuilder
+PyBuilder==0.11.9
