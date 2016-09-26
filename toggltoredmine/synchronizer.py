@@ -26,9 +26,9 @@ class Synchronizer:
 
         entries = list(self.toggl.get(days))
 
-        filteredEntries = [e for e in entries if e.taskId != None]
+        filteredEntries = [e for e in entries if e.taskId != None and e.duration > 0]
 
-        print('Found entries in toggl: {} (with redmine id: {})'.format(len(entries), len(filteredEntries)))
+        print('Found entries in toggl: {} (filtered: {})'.format(len(entries), len(filteredEntries)))
 
         if self.mattermost:
             self.mattermost.appendEntries(entries)

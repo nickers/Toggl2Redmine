@@ -189,5 +189,36 @@ class SynchronizerTests(unittest.TestCase):
             comment='#987 hard work [toggl#17]'
         )
 
+    def test_ignore_negative_duration(self):
+        """
+        Synchronizer should ignore entries with negative durations (pending entries).
+
+		From toggl docs:
+           duration: time entry duration in seconds. If the time entry is currently running, the duration attribute contains a negative value, denoting the start
+           of the time entry in seconds since epoch (Jan 1 1970). The correct duration can be calculated as current_time + duration, where current_time is the current
+           time in seconds since epoch. (integer, required)
+        """
+
+        redmine = Mock()
+        toggl = Mock()
+
+        toggl.get.return_value = [
+            TogglEntry(None, 3600, '2016-01-01T01:01:01', 777, 'test #333'),
+            TogglEntry(None, -3600, '2016-01-01T01:01:01', 778, 'test #334')
+        ]
+
+        redmine.get.return_value = []
+
+        s = Synchronizer(Mock(), redmine, toggl, None)
+        s.start(1)
+
+        toggl.get.assert_called_once_with(1)
+        redmine.get.assert_called_once_with(333)
+
+        redmine.put.assert_called_once_with(issueId=333,
+            spentOn='2016-01-01',
+            hours=1.0,
+            comment='test #333 [toggl#777]')
+
 if __name__ == '__main__':
     unittest.main()
