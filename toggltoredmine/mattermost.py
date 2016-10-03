@@ -32,7 +32,7 @@ class MattermostNotifier:
         timeSum = sum([e.duration for e in entries])
 
         if len(entries) == 0 or timeSum == 0:
-            self.append('All together you did not work today at all :cry:. Hope you ok?')
+            self.append('Altogether you did not work today at all :cry:. Hope you ok?')
         else:
             if timeSum < 4 * 60 * 60: # 4 hours
                 self.append('You worked almost less than 4 hours today (exactly {}), not every day is a perfect day, right? :smirk:.'.format(MattermostNotifier.formatSeconds(timeSum)))

@@ -27,7 +27,7 @@ class MattermostNotifierTests(unittest.TestCase):
         mattermost.send()
 
         text = '''Found entries in toggl: **0** (with redmine id: **0**)
-All together you did not work today at all :cry:. Hope you ok?
+Altogether you did not work today at all :cry:. Hope you ok?
 '''
 
         runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
