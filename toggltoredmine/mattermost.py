@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from datetime import datetime
 
 from toggltoredmine.config import Config
+from toggltoredmine.toggl import TogglHelper
 
 class RequestsRunner:
     def send(self, url, data):
@@ -19,17 +20,20 @@ class MattermostNotifier:
     def append(self, message):
         self.lines.append(message)
 
-    def appendEntries(self, allEntries):
-        filteredAllEntries = [e for e in allEntries if e.taskId != None]
+    def appendDuration(self, days):
+        self.append('Sync: {} day{}'.format(days, 's' if days != 1 else ''))
 
-        self.append('Found entries in toggl: **{}** (with redmine id: **{}**)'.format(len(allEntries), len(filteredAllEntries)))
+    def appendEntries(self, allEntries):
+        filteredAllEntries = TogglHelper.filterRedmineEntries(allEntries)
+
+        self.append('Found entries in toggl: **{}** (filtered: **{}**)'.format(len(allEntries), len(filteredAllEntries)))
 
         entries = MattermostNotifier.filterToday(allEntries)
 
         timeSum = sum([e.duration for e in entries])
 
         if len(entries) == 0 or timeSum == 0:
-            self.append('All together you did not work today at all :cry:. Hope you ok?')
+            self.append('Altogether you did not work today at all :cry:. Hope you ok?')
         else:
             if timeSum < 4 * 60 * 60: # 4 hours
                 self.append('You worked almost less than 4 hours today (exactly {}), not every day is a perfect day, right? :smirk:.'.format(MattermostNotifier.formatSeconds(timeSum)))
@@ -71,6 +75,8 @@ class MattermostNotifier:
             print('-----------------------------------')
         else:
             self.runner.send(self.url, data)
+            print('Sent to mattermost:')
+            print(text)
 
         self.lines = []
 
@@ -90,7 +96,7 @@ class MattermostNotifier:
             return []
 
         today = datetime.strftime(datetime.today(), '%Y-%m-%d')
-        return [e for e in entries if e.start and e.start.startswith(today)]
+        return [e for e in entries if e.start and e.start.startswith(today) and e.duration > 0]
 
     @staticmethod
     def filterWithRedmineId(entries):

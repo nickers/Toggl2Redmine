@@ -54,6 +54,9 @@ class TogglEntry:
 	def __str__(self):
 		return '{}. {}: {} (time: {} h, redmine task: {})'.format(self.id, self.start, self.description, self.hours, '#' + str(self.taskId) if self.taskId else '-')
 
+	def __repr__(self):
+		return str(self)
+
 class TogglHelper:
 	"""
 	Class providing access to toggl time entries
@@ -83,6 +86,17 @@ class TogglHelper:
 
 		for entry in r.json():
 			yield TogglEntry.createFromEntry(entry)
+
+	@staticmethod
+	def filterRedmineEntries(entries):
+		"""
+		Filters toggl entries
+
+			- only with redmine id
+			- only with positive duration
+		"""
+
+		return [e for e in entries if e.taskId != None and e.duration > 0]
 
 if __name__ == '__main__':
 

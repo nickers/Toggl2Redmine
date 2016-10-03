@@ -26,8 +26,8 @@ class MattermostNotifierTests(unittest.TestCase):
         mattermost.appendEntries([])
         mattermost.send()
 
-        text = '''Found entries in toggl: **0** (with redmine id: **0**)
-All together you did not work today at all :cry:. Hope you ok?
+        text = '''Found entries in toggl: **0** (filtered: **0**)
+Altogether you did not work today at all :cry:. Hope you ok?
 '''
 
         runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
@@ -39,7 +39,7 @@ All together you did not work today at all :cry:. Hope you ok?
         mattermost.appendEntries([TogglEntry(None, 60, self.today, 777, '')])
         mattermost.send()
 
-        text = '''Found entries in toggl: **1** (with redmine id: **0**)
+        text = '''Found entries in toggl: **1** (filtered: **0**)
 You worked almost less than 4 hours today (exactly 1 m), not every day is a perfect day, right? :smirk:.
 Huh, not many entries. It means, you did only a couple of tasks, but did it right .. right? :open_mouth:
 Ugh. Less than 25% of your work had redmine id. Not so good :cry:.
@@ -57,7 +57,7 @@ Ugh. Less than 25% of your work had redmine id. Not so good :cry:.
         ])
         mattermost.send()
 
-        text = '''Found entries in toggl: **2** (with redmine id: **1**)
+        text = '''Found entries in toggl: **2** (filtered: **1**)
 You worked almost less than 4 hours today (exactly 2 m), not every day is a perfect day, right? :smirk:.
 Huh, not many entries. It means, you did only a couple of tasks, but did it right .. right? :open_mouth:
 It's gooood. A lot of today work had redmine id! Congrats :sunglasses:.
@@ -74,7 +74,7 @@ It's gooood. A lot of today work had redmine id! Congrats :sunglasses:.
         ])
         mattermost.send()
 
-        text = '''Found entries in toggl: **1** (with redmine id: **1**)
+        text = '''Found entries in toggl: **1** (filtered: **1**)
 You worked almost less than 4 hours today (exactly 3.47 h), not every day is a perfect day, right? :smirk:.
 Huh, not many entries. It means, you did only a couple of tasks, but did it right .. right? :open_mouth:
 It seems that more than 75% of your today work had redmine id! So .. you rock :rocket:!
@@ -96,7 +96,7 @@ It seems that more than 75% of your today work had redmine id! So .. you rock :r
         mattermost.appendEntries(l)
         mattermost.send()
 
-        text = '''Found entries in toggl: **9** (with redmine id: **9**)
+        text = '''Found entries in toggl: **9** (filtered: **9**)
 Wow you did overtime today :rocket:! Doing overtime from time to time can be good, but life after work is also important. Remember this next time taking 36.00 h in work :sunglasses:!
 Average day. Not too few, not too many entries :sunglasses:.
 It seems that more than 75% of your today work had redmine id! So .. you rock :rocket:!
@@ -118,7 +118,7 @@ It seems that more than 75% of your today work had redmine id! So .. you rock :r
         mattermost.appendEntries(l)
         mattermost.send()
 
-        text = '''Found entries in toggl: **50** (with redmine id: **50**)
+        text = '''Found entries in toggl: **50** (filtered: **50**)
 You worked almost less than 4 hours today (exactly 50 m), not every day is a perfect day, right? :smirk:.
 You did 50 entries like a boss :smirk: :boom:!
 It seems that more than 75% of your today work had redmine id! So .. you rock :rocket:!
@@ -140,15 +140,13 @@ It seems that more than 75% of your today work had redmine id! So .. you rock :r
         mattermost.appendEntries(l)
         mattermost.send()
 
-        text = '''Found entries in toggl: **3** (with redmine id: **1**)
+        text = '''Found entries in toggl: **3** (filtered: **1**)
 You worked almost less than 4 hours today (exactly 3 m), not every day is a perfect day, right? :smirk:.
 Huh, not many entries. It means, you did only a couple of tasks, but did it right .. right? :open_mouth:
 Almost 50% of your today work had redmine id :blush:.
 '''
 
         runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
-
-
 
     def test_formatSeconds_less_60(self):
         self.assertEquals('45 s', MattermostNotifier.formatSeconds(45))
@@ -188,3 +186,69 @@ Almost 50% of your today work had redmine id :blush:.
         self.assertEquals(2, len(filtered))
         self.assertEquals(1, filtered[0].id)
         self.assertEquals(3, filtered[1].id)
+
+    def test_appendDuration_one_day(self):
+        runner = MagicMock()
+
+        mattermost = MattermostNotifier('http://dummy', runner)
+
+        mattermost.appendDuration(1)
+        mattermost.send()
+
+        text = '''Sync: 1 day'''
+
+        runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
+
+    def test_appendDuration_two_days(self):
+        runner = MagicMock()
+
+        mattermost = MattermostNotifier('http://dummy', runner)
+
+        mattermost.appendDuration(2)
+        mattermost.send()
+
+        text = '''Sync: 2 days'''
+
+        runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
+
+    def test_appendDuration_zero_days(self):
+        runner = MagicMock()
+
+        mattermost = MattermostNotifier('http://dummy', runner)
+
+        mattermost.appendDuration(0)
+        mattermost.send()
+
+        text = '''Sync: 0 days'''
+
+        runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
+
+    def test_ignore_negative_duration(self):
+        """
+        Mattermost should ignore entries with negative durations (pending entries).
+
+		From toggl docs:
+           duration: time entry duration in seconds. If the time entry is currently running, the duration attribute contains a negative value, denoting the start
+           of the time entry in seconds since epoch (Jan 1 1970). The correct duration can be calculated as current_time + duration, where current_time is the current
+           time in seconds since epoch. (integer, required)
+        """
+
+        runner = MagicMock()
+
+        mattermost = MattermostNotifier('http://dummy', runner)
+
+        l = [
+            TogglEntry(None, 3600, self.today, 777, 'test #333'),
+            TogglEntry(None, -300, self.today, 778, 'test #334')
+        ]
+
+        mattermost.appendEntries(l)
+        mattermost.send()
+
+        text = '''Found entries in toggl: **2** (filtered: **1**)
+You worked almost less than 4 hours today (exactly 1.00 h), not every day is a perfect day, right? :smirk:.
+Huh, not many entries. It means, you did only a couple of tasks, but did it right .. right? :open_mouth:
+It seems that more than 75% of your today work had redmine id! So .. you rock :rocket:!
+'''
+
+        runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
