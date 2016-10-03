@@ -26,7 +26,7 @@ class Synchronizer:
 
         entries = list(self.toggl.get(days))
 
-        filteredEntries = [e for e in entries if e.taskId != None and e.duration > 0]
+        filteredEntries = TogglHelper.filterRedmineEntries(entries)
 
         print('Found entries in toggl: {} (filtered: {})'.format(len(entries), len(filteredEntries)))
 

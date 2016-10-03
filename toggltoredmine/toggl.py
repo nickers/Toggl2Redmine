@@ -87,6 +87,17 @@ class TogglHelper:
 		for entry in r.json():
 			yield TogglEntry.createFromEntry(entry)
 
+	@staticmethod
+	def filterRedmineEntries(entries):
+		"""
+		Filters toggl entries
+
+			- only with redmine id
+			- only with positive duration
+		"""
+
+		return [e for e in entries if e.taskId != None and e.duration > 0]
+
 if __name__ == '__main__':
 
 	parser = ArgumentParser(description='Gets toggl entries for last n days')

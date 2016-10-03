@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from datetime import datetime
 
 from toggltoredmine.config import Config
+from toggltoredmine.toggl import TogglHelper
 
 class RequestsRunner:
     def send(self, url, data):
@@ -23,7 +24,7 @@ class MattermostNotifier:
         self.append('Sync: {} day{}'.format(days, 's' if days != 1 else ''))
 
     def appendEntries(self, allEntries):
-        filteredAllEntries = [e for e in allEntries if e.taskId != None]
+        filteredAllEntries = TogglHelper.filterRedmineEntries(allEntries)
 
         self.append('Found entries in toggl: **{}** (with redmine id: **{}**)'.format(len(allEntries), len(filteredAllEntries)))
 
