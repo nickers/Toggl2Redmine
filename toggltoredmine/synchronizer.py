@@ -31,6 +31,7 @@ class Synchronizer:
         print('Found entries in toggl: {} (filtered: {})'.format(len(entries), len(filteredEntries)))
 
         if self.mattermost:
+            self.mattermost.appendDuration(days)
             self.mattermost.appendEntries(entries)
 
         if len(filteredEntries) == 0:

@@ -19,6 +19,9 @@ class MattermostNotifier:
     def append(self, message):
         self.lines.append(message)
 
+    def appendDuration(self, days):
+        self.append('Sync: {} day{}'.format(days, 's' if days != 1 else ''))
+
     def appendEntries(self, allEntries):
         filteredAllEntries = [e for e in allEntries if e.taskId != None]
 

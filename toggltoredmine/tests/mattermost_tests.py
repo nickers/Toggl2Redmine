@@ -188,3 +188,39 @@ Almost 50% of your today work had redmine id :blush:.
         self.assertEquals(2, len(filtered))
         self.assertEquals(1, filtered[0].id)
         self.assertEquals(3, filtered[1].id)
+
+    def test_appendDuration_one_day(self):
+        runner = MagicMock()
+
+        mattermost = MattermostNotifier('http://dummy', runner)
+
+        mattermost.appendDuration(1)
+        mattermost.send()
+
+        text = '''Sync: 1 day'''
+
+        runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
+
+    def test_appendDuration_two_days(self):
+        runner = MagicMock()
+
+        mattermost = MattermostNotifier('http://dummy', runner)
+
+        mattermost.appendDuration(2)
+        mattermost.send()
+
+        text = '''Sync: 2 days'''
+
+        runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
+
+    def test_appendDuration_zero_days(self):
+        runner = MagicMock()
+
+        mattermost = MattermostNotifier('http://dummy', runner)
+
+        mattermost.appendDuration(0)
+        mattermost.send()
+
+        text = '''Sync: 0 days'''
+
+        runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
