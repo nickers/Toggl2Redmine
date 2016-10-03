@@ -26,7 +26,7 @@ class MattermostNotifier:
     def appendEntries(self, allEntries):
         filteredAllEntries = TogglHelper.filterRedmineEntries(allEntries)
 
-        self.append('Found entries in toggl: **{}** (with redmine id: **{}**)'.format(len(allEntries), len(filteredAllEntries)))
+        self.append('Found entries in toggl: **{}** (filtered: **{}**)'.format(len(allEntries), len(filteredAllEntries)))
 
         entries = MattermostNotifier.filterToday(allEntries)
 
