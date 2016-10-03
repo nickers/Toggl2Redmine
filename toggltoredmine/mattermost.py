@@ -96,7 +96,7 @@ class MattermostNotifier:
             return []
 
         today = datetime.strftime(datetime.today(), '%Y-%m-%d')
-        return [e for e in entries if e.start and e.start.startswith(today)]
+        return [e for e in entries if e.start and e.start.startswith(today) and e.duration > 0]
 
     @staticmethod
     def filterWithRedmineId(entries):

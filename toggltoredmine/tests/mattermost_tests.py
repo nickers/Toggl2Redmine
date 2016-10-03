@@ -148,8 +148,6 @@ Almost 50% of your today work had redmine id :blush:.
 
         runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
 
-
-
     def test_formatSeconds_less_60(self):
         self.assertEquals('45 s', MattermostNotifier.formatSeconds(45))
 
@@ -222,5 +220,35 @@ Almost 50% of your today work had redmine id :blush:.
         mattermost.send()
 
         text = '''Sync: 0 days'''
+
+        runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
+
+    def test_ignore_negative_duration(self):
+        """
+        Mattermost should ignore entries with negative durations (pending entries).
+
+		From toggl docs:
+           duration: time entry duration in seconds. If the time entry is currently running, the duration attribute contains a negative value, denoting the start
+           of the time entry in seconds since epoch (Jan 1 1970). The correct duration can be calculated as current_time + duration, where current_time is the current
+           time in seconds since epoch. (integer, required)
+        """
+
+        runner = MagicMock()
+
+        mattermost = MattermostNotifier('http://dummy', runner)
+
+        l = [
+            TogglEntry(None, 3600, self.today, 777, 'test #333'),
+            TogglEntry(None, -300, self.today, 778, 'test #334')
+        ]
+
+        mattermost.appendEntries(l)
+        mattermost.send()
+
+        text = '''Found entries in toggl: **2** (filtered: **1**)
+You worked almost less than 4 hours today (exactly 1.00 h), not every day is a perfect day, right? :smirk:.
+Huh, not many entries. It means, you did only a couple of tasks, but did it right .. right? :open_mouth:
+It seems that more than 75% of your today work had redmine id! So .. you rock :rocket:!
+'''
 
         runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
