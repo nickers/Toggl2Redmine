@@ -148,8 +148,6 @@ Almost 50% of your today work had redmine id :blush:.
 
         runner.send.assert_called_with('http://dummy', {'text': text, 'username': 'toggl2redmine'})
 
-
-
     def test_formatSeconds_less_60(self):
         self.assertEquals('45 s', MattermostNotifier.formatSeconds(45))
 
